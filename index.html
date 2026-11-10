@@ -3,28 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="使用 Coinbase 市场参考汇率，将人民币经英镑或直接换算为美元。">
+  <meta name="description" content="按兴业寰宇卡和 Wise 的当前报价，比较人民币经英镑或直接换算为美元的金额。">
   <title>人民币兑美元计算器</title>
-  <link rel="stylesheet" href="style.css?v=2">
-  <script src="calculator.js?v=2" defer></script>
+  <link rel="stylesheet" href="style.css?v=3">
+  <script src="calculator.js?v=3" defer></script>
 </head>
 <body>
   <main class="container calculator">
     <header>
       <h1>人民币兑美元计算器</h1>
-      <p>选择经英镑或直接换算为美元。</p>
+      <p>按兴业寰宇卡与 Wise 的当前报价换算。</p>
     </header>
-
-    <section class="rates" aria-labelledby="rates-heading">
-      <h2 id="rates-heading">实时参考汇率</h2>
-      <dl class="quotes">
-        <div><dt>1 人民币兑英镑</dt><dd id="cny-gbp">暂无</dd></div>
-        <div><dt>1 英镑兑美元</dt><dd id="gbp-usd">暂无</dd></div>
-        <div><dt>1 人民币兑美元</dt><dd id="cny-usd">暂无</dd></div>
-      </dl>
-      <p class="rate-source">来源 <a href="https://docs.cdp.coinbase.com/coinbase-app/track-apis/exchange-rates">Coinbase 汇率接口</a>，页面可见时每分钟查询一次。</p>
-      <p id="rate-status" class="muted" role="status">正在获取汇率…</p>
-    </section>
 
     <section class="conversion" aria-label="换算金额">
       <form id="converter">
@@ -35,12 +24,35 @@
             <label><input type="radio" name="route" value="direct"> 人民币 → 美元</label>
           </div>
         </fieldset>
+        <div class="rates">
+          <h2>填写当前报价</h2>
+          <p class="muted">以兴业手机银行的寰宇卡购汇确认页为准。若报价按 1 单位外币显示，请乘 100 后填写。<a href="https://personalbank.cib.com.cn/pers/main/pubinfo/ifxQuotationQuery" target="_blank" rel="noopener">查看兴业普通挂牌价</a></p>
+          <fieldset id="via-rates" class="rate-fields">
+            <legend class="visually-hidden">经英镑换算所需报价</legend>
+            <div class="field">
+              <label for="bank-gbp">兴业英镑购汇价（元 / 100 英镑）</label>
+              <input id="bank-gbp" type="number" inputmode="decimal" min="0" step="any" required>
+            </div>
+            <div class="field">
+              <label for="wise-rate">Wise 英镑兑美元价（美元 / 英镑）</label>
+              <input id="wise-rate" type="number" inputmode="decimal" min="0" step="any" required>
+              <p class="muted">以 Wise 兑换确认页为准。<a href="https://wise.com/gb/currency-converter/gbp-to-usd-rate" target="_blank" rel="noopener">查看 Wise 实时中间价</a></p>
+            </div>
+          </fieldset>
+          <fieldset id="direct-rates" class="rate-fields" hidden disabled>
+            <legend class="visually-hidden">直接换美元所需报价</legend>
+            <div class="field">
+              <label for="bank-usd">兴业美元购汇价（元 / 100 美元）</label>
+              <input id="bank-usd" type="number" inputmode="decimal" min="0" step="any" required>
+            </div>
+          </fieldset>
+        </div>
         <div class="amount-row">
           <div class="field">
             <label for="amount">人民币金额（元）</label>
             <input id="amount" name="amount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="例如 1000.00" required>
           </div>
-          <button id="calculate" type="submit" disabled>计算</button>
+          <button id="calculate" type="submit">计算</button>
         </div>
       </form>
       <div class="result">
@@ -54,15 +66,15 @@
             <p class="result-number"><output id="result" for="amount">待计算</output> <span>USD</span></p>
           </div>
         </div>
-        <p id="result-quote" class="muted" hidden></p>
+        <p id="result-quote" class="muted" role="status" hidden></p>
       </div>
     </section>
 
     <footer class="disclaimer">
       <h2>免责声明</h2>
-      <p>两条路径使用同一组参考汇率，美元结果相同。实际到账受成交汇率、手续费和中转扣款影响。境内个人便利化购汇额度不得用于境外证券投资。</p>
+      <p>金额按手动输入的报价换算，未扣除 Wise 换汇费、汇款费用和中转扣款。实际到账以交易确认页为准。境内个人便利化购汇额度不得用于境外证券投资。</p>
     </footer>
-    <noscript><p>请启用 JavaScript 以获取汇率和计算金额。</p></noscript>
+    <noscript><p>请启用 JavaScript 以计算换算金额。</p></noscript>
   </main>
 </body>
 </html>

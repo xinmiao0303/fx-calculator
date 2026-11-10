@@ -1,5 +1,5 @@
 /* Hallmark · shape: app screen · genre: modern-minimal · theme: Dose · v2.0.0 */
-/* Hallmark · pre-emit critique: show the quote and result together with their distinct timestamps. */
+/* Hallmark · pre-emit critique: place each quote unit next to its field and expose only fields for the selected route. */
 @import url("./tokens.css");
 @import url("./base.css");
 
@@ -7,15 +7,12 @@
 header { margin-bottom: var(--space-lg); }
 header h1 { max-width: none; font-size: var(--text-3xl); line-height: 1.2; }
 header p { margin-top: var(--space-sm); color: var(--color-ink-2); }
-.rates { padding: var(--space-lg); border: 1px solid var(--color-rule); border-radius: var(--radius-card); background: var(--color-paper-2); }
-.quotes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: var(--space-md) 0; }
-.quotes div { padding-inline: var(--space-md); }
-.quotes div:first-child { padding-inline-start: 0; }
-.quotes div + div { border-inline-start: 1px solid var(--color-rule); }
-.quotes dt, .muted, .rate-source { font-size: var(--text-sm); color: var(--color-muted); }
-.quotes dd { margin: var(--space-2xs) 0 0; font-size: var(--text-lg); font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.rate-source { padding-top: var(--space-sm); border-top: 1px solid var(--color-rule); }
-#rate-status { margin-top: var(--space-2xs); }
+.rates { padding: var(--space-md); border: 1px solid var(--color-rule); border-radius: var(--radius-input); background: var(--color-paper-2); }
+.rates > p { margin-top: var(--space-xs); }
+.rate-fields { display: flex; flex-wrap: wrap; gap: var(--space-sm); border: 0; padding: 0; margin: var(--space-sm) 0 0; min-width: 0; }
+.rate-fields > .field { flex: 1 1 13rem; }
+.rate-fields a { justify-self: start; }
+.muted { font-size: var(--text-sm); color: var(--color-muted); }
 .conversion { margin-block: var(--space-lg); border: 1px solid var(--color-rule); border-radius: var(--radius-card); background: var(--light); }
 form { display: grid; gap: var(--space-sm); padding: var(--space-lg); }
 .routes { border: 0; padding: 0; margin: 0; min-width: 0; }
@@ -46,9 +43,6 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
 @media (max-width: 34rem) {
   .calculator { padding-block: var(--space-xl); }
   header h1 { font-size: var(--text-2xl); }
-  .rates, form, .result { padding: var(--space-md); }
-  .quotes div { padding-inline: var(--space-xs); }
-  .quotes dt { font-size: var(--text-xs); }
-  .quotes dd { font-size: var(--text-md); }
+  form, .result { padding: var(--space-md); }
   button { min-width: 4rem; }
 }
