@@ -9,6 +9,9 @@ header h1 { max-width: none; font-size: var(--text-3xl); line-height: 1.2; }
 header p { margin-top: var(--space-sm); color: var(--color-ink-2); }
 .rates { padding: var(--space-md); border: 1px solid var(--color-rule); border-radius: var(--radius-input); background: var(--color-paper-2); }
 .rates > p { margin-top: var(--space-xs); }
+.quotes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-sm); margin: var(--space-sm) 0; }
+.quotes dt { font-size: var(--text-sm); color: var(--color-muted); }
+.quotes dd { margin: var(--space-2xs) 0 0; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .rate-fields { display: flex; flex-wrap: wrap; gap: var(--space-sm); border: 0; padding: 0; margin: var(--space-sm) 0 0; min-width: 0; }
 .rate-fields > .field { flex: 1 1 13rem; }
 .rate-fields a { justify-self: start; }
@@ -18,8 +21,9 @@ form { display: grid; gap: var(--space-sm); padding: var(--space-lg); }
 .routes { border: 0; padding: 0; margin: 0; min-width: 0; }
 .routes legend, label { font-size: var(--text-sm); font-weight: 600; }
 .route-options { display: flex; flex-wrap: wrap; gap: 0 var(--space-lg); }
-.route-options label { display: inline-flex; align-items: center; gap: var(--space-xs); min-height: 44px; cursor: pointer; }
-input[type="radio"] { margin: 0; accent-color: var(--color-accent-deep); }
+.route-options label, .manual-option { display: inline-flex; align-items: center; gap: var(--space-xs); min-height: 44px; cursor: pointer; }
+.manual-option { justify-self: start; }
+input[type="radio"], input[type="checkbox"] { margin: 0; accent-color: var(--color-accent-deep); }
 .amount-row { display: flex; align-items: end; gap: var(--space-sm); }
 .field { display: grid; gap: var(--space-2xs); flex: 1; min-width: 0; }
 input[type="number"], button { min-height: 44px; border: 1px solid var(--color-muted); border-radius: var(--radius-input); padding: var(--space-xs) var(--space-sm); }
@@ -44,5 +48,7 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
   .calculator { padding-block: var(--space-xl); }
   header h1 { font-size: var(--text-2xl); }
   form, .result { padding: var(--space-md); }
+  .quotes { gap: var(--space-xs); }
+  .quotes dt { font-size: var(--text-xs); }
   button { min-width: 4rem; }
 }
