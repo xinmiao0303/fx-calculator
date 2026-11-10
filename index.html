@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="使用 Coinbase 市场参考汇率，将人民币经欧元换算为美元。">
+  <title>人民币兑美元计算器</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="calculator.js" defer></script>
+</head>
+<body>
+  <main class="container calculator">
+    <header>
+      <h1>人民币兑美元计算器</h1>
+      <p>输入人民币金额，查看经欧元换算后的美元金额。</p>
+    </header>
+
+    <section class="rates" aria-labelledby="rates-heading">
+      <h2 id="rates-heading">实时参考汇率</h2>
+      <dl class="quotes">
+        <div><dt>1 人民币兑欧元</dt><dd id="cny-eur">暂无</dd></div>
+        <div><dt>1 欧元兑美元</dt><dd id="eur-usd">暂无</dd></div>
+        <div><dt>1 人民币兑美元</dt><dd id="cny-usd">暂无</dd></div>
+      </dl>
+      <p class="rate-source">来源 <a href="https://docs.cdp.coinbase.com/coinbase-app/track-apis/exchange-rates">Coinbase 汇率接口</a>，页面可见时每分钟查询一次。</p>
+      <p id="rate-status" class="muted" role="status">正在获取汇率…</p>
+    </section>
+
+    <section class="conversion" aria-label="换算金额">
+      <form id="converter">
+        <div class="field">
+          <label for="amount">人民币金额（元）</label>
+          <input id="amount" name="amount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="例如 1000.00" required>
+        </div>
+        <button id="calculate" type="submit" disabled>计算</button>
+      </form>
+      <div class="result">
+        <h2>换算后的美元</h2>
+        <p class="result-number"><output id="result" for="amount">待计算</output> <span>USD</span></p>
+        <p id="result-quote" class="muted" hidden></p>
+      </div>
+    </section>
+
+    <footer class="disclaimer">
+      <h2>免责声明</h2>
+      <p>结果仅供参考。实际到账受成交汇率、手续费和中转扣款影响。境内个人便利化购汇额度不得用于境外证券投资。</p>
+    </footer>
+    <noscript><p>请启用 JavaScript 以获取汇率和计算金额。</p></noscript>
+  </main>
+</body>
+</html>
