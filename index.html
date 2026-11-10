@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="用 Coinbase 参考汇率或手动报价，将人民币经英镑或直接换算为美元。">
   <title>人民币兑美元计算器</title>
-  <link rel="stylesheet" href="style.css?v=4">
-  <script src="calculator.js?v=4" defer></script>
+  <link rel="stylesheet" href="style.css?v=5">
+  <script src="calculator.js?v=5" defer></script>
 </head>
 <body>
   <main class="container calculator">
@@ -28,24 +28,39 @@
         <div id="automatic-rates" class="rates">
           <h2>实时参考汇率</h2>
           <dl class="quotes">
-            <div><dt>1 人民币兑英镑</dt><dd id="cny-gbp">暂无</dd></div>
-            <div><dt>1 英镑兑美元</dt><dd id="gbp-usd">暂无</dd></div>
-            <div><dt>1 人民币兑美元</dt><dd id="cny-usd">暂无</dd></div>
+            <div>
+              <dt id="cny-gbp-label">1 英镑兑人民币</dt>
+              <dd><span id="cny-gbp">暂无</span><button class="rate-toggle" type="button" data-rate-pair="cnyGbp" aria-label="切换人民币与英镑汇率方向" aria-describedby="cny-gbp-label">切换</button></dd>
+            </div>
+            <div>
+              <dt id="gbp-usd-label">1 英镑兑美元</dt>
+              <dd><span id="gbp-usd">暂无</span><button class="rate-toggle" type="button" data-rate-pair="gbpUsd" aria-label="切换英镑与美元汇率方向" aria-describedby="gbp-usd-label">切换</button></dd>
+            </div>
+            <div>
+              <dt id="cny-usd-label">1 美元兑人民币</dt>
+              <dd><span id="cny-usd">暂无</span><button class="rate-toggle" type="button" data-rate-pair="cnyUsd" aria-label="切换人民币与美元汇率方向" aria-describedby="cny-usd-label">切换</button></dd>
+            </div>
           </dl>
           <p class="muted">来源 <a href="https://docs.cdp.coinbase.com/coinbase-app/track-apis/exchange-rates">Coinbase 汇率接口</a>，页面可见时每分钟查询一次。</p>
           <p id="rate-status" class="muted" role="status">正在获取汇率…</p>
         </div>
         <div id="manual-rates" class="rates" hidden>
           <h2>填写汇率</h2>
-          <p class="muted">若兴业显示「100 单位外币 = X 元人民币」，请填 100 ÷ X 的结果。<a href="https://personalbank.cib.com.cn/pers/main/pubinfo/ifxQuotationQuery" target="_blank" rel="noopener">查看兴业普通挂牌价</a></p>
+          <p class="muted">按输入框上方的方向填价。兴业若按 100 单位外币报价，先除以 100，再填到「1 单位外币兑人民币」方向。<a href="https://personalbank.cib.com.cn/pers/main/pubinfo/ifxQuotationQuery" target="_blank" rel="noopener">查看兴业普通挂牌价</a></p>
           <fieldset id="via-rates" class="rate-fields" disabled>
             <legend class="visually-hidden">经英镑换算所需报价</legend>
             <div class="field">
-              <label for="manual-cny-gbp">1 人民币兑多少英镑</label>
+              <div class="rate-field-heading">
+                <label for="manual-cny-gbp" id="manual-cny-gbp-label">1 英镑兑多少人民币</label>
+                <button class="rate-toggle" type="button" data-rate-pair="cnyGbp" aria-label="切换人民币与英镑汇率方向" aria-describedby="manual-cny-gbp-label">切换</button>
+              </div>
               <input id="manual-cny-gbp" type="number" inputmode="decimal" min="0" step="any" required>
             </div>
             <div class="field">
-              <label for="manual-gbp-usd">1 英镑兑多少美元</label>
+              <div class="rate-field-heading">
+                <label for="manual-gbp-usd" id="manual-gbp-usd-label">1 英镑兑多少美元</label>
+                <button class="rate-toggle" type="button" data-rate-pair="gbpUsd" aria-label="切换英镑与美元汇率方向" aria-describedby="manual-gbp-usd-label">切换</button>
+              </div>
               <input id="manual-gbp-usd" type="number" inputmode="decimal" min="0" step="any" required>
               <p class="muted">以 Wise 兑换确认页为准。<a href="https://wise.com/gb/currency-converter/gbp-to-usd-rate" target="_blank" rel="noopener">查看 Wise 实时中间价</a></p>
             </div>
@@ -53,7 +68,10 @@
           <fieldset id="direct-rates" class="rate-fields" hidden disabled>
             <legend class="visually-hidden">直接换美元所需报价</legend>
             <div class="field">
-              <label for="manual-cny-usd">1 人民币兑多少美元</label>
+              <div class="rate-field-heading">
+                <label for="manual-cny-usd" id="manual-cny-usd-label">1 美元兑多少人民币</label>
+                <button class="rate-toggle" type="button" data-rate-pair="cnyUsd" aria-label="切换人民币与美元汇率方向" aria-describedby="manual-cny-usd-label">切换</button>
+              </div>
               <input id="manual-cny-usd" type="number" inputmode="decimal" min="0" step="any" required>
             </div>
           </fieldset>

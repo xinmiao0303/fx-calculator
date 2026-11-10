@@ -10,9 +10,6 @@ const amount = document.getElementById("amount");
 const manual = document.getElementById("manual");
 const automaticRates = document.getElementById("automatic-rates");
 const manualRates = document.getElementById("manual-rates");
-const manualCnyGbp = document.getElementById("manual-cny-gbp");
-const manualGbpUsd = document.getElementById("manual-gbp-usd");
-const manualCnyUsd = document.getElementById("manual-cny-usd");
 const viaRates = document.getElementById("via-rates");
 const directRates = document.getElementById("direct-rates");
 const calculate = document.getElementById("calculate");
@@ -21,9 +18,50 @@ const poundsResult = document.getElementById("pounds-result");
 const pounds = document.getElementById("pounds");
 const result = document.getElementById("result");
 const resultQuote = document.getElementById("result-quote");
+const ratePairs = {
+  cnyGbp: createRatePair("cny-gbp", "人民币", "英镑", true),
+  gbpUsd: createRatePair("gbp-usd", "英镑", "美元", false),
+  cnyUsd: createRatePair("cny-usd", "人民币", "美元", true),
+};
 let quote;
 let refreshing = false;
 let lastRequest = 0;
+
+function createRatePair(id, from, to, reversed) {
+  return {
+    from, to, reversed,
+    input: document.getElementById(`manual-${id}`),
+    inputLabel: document.getElementById(`manual-${id}-label`),
+    quoteValue: document.getElementById(id),
+    quoteLabel: document.getElementById(`${id}-label`),
+    entered: undefined,
+  };
+}
+
+function displayQuote(key, pair) {
+  const rate = quote?.[key];
+  pair.quoteValue.textContent = rate === undefined ? "暂无" : rateFormat.format(pair.reversed ? 1 / rate : rate);
+}
+
+function switchDirection(key) {
+  const pair = ratePairs[key];
+  pair.reversed = !pair.reversed;
+  const from = pair.reversed ? pair.to : pair.from;
+  const to = pair.reversed ? pair.from : pair.to;
+  pair.quoteLabel.textContent = `1 ${from}兑${to}`;
+  pair.inputLabel.textContent = `1 ${from}兑多少${to}`;
+  displayQuote(key, pair);
+  if (!pair.entered) return;
+  const { text, value, reversed } = pair.entered;
+  // Keep the original entry so flipping twice restores it without rounding.
+  pair.input.value = reversed === pair.reversed || !(value > 0) ? text : String(1 / value);
+}
+
+function manualRate(key) {
+  const entered = ratePairs[key].entered;
+  if (!entered) return NaN;
+  return entered.reversed && entered.value > 0 ? 1 / entered.value : entered.value;
+}
 
 function updateCalculateButton() {
   calculate.disabled = !manual.checked && !quote;
@@ -45,18 +83,13 @@ async function refreshQuote() {
       throw new Error("Invalid quote");
     }
     quote = { ...rates, fetchedAt: Date.now() };
-    document.getElementById("cny-gbp").textContent = rateFormat.format(rates.cnyGbp);
-    document.getElementById("gbp-usd").textContent = rateFormat.format(rates.gbpUsd);
-    document.getElementById("cny-usd").textContent = rateFormat.format(rates.cnyUsd);
     rateStatus.textContent = `取数时间 ${timeFormat.format(quote.fetchedAt)}`;
   } catch {
     quote = undefined;
-    for (const id of ["cny-gbp", "gbp-usd", "cny-usd"]) {
-      document.getElementById(id).textContent = "暂无";
-    }
     rateStatus.textContent = "汇率获取失败，页面将自动重试。也可以手动输入汇率。";
   } finally {
     refreshing = false;
+    for (const [key, pair] of Object.entries(ratePairs)) displayQuote(key, pair);
     updateCalculateButton();
   }
 }
@@ -87,9 +120,9 @@ form.addEventListener("submit", event => {
   const viaPounds = form.elements.route.value === "via-gbp";
   const cny = amount.valueAsNumber;
   const rates = manual.checked ? {
-    cnyGbp: manualCnyGbp.valueAsNumber,
-    gbpUsd: manualGbpUsd.valueAsNumber,
-    cnyUsd: manualCnyUsd.valueAsNumber,
+    cnyGbp: manualRate("cnyGbp"),
+    gbpUsd: manualRate("gbpUsd"),
+    cnyUsd: manualRate("cnyUsd"),
   } : quote;
   const firstRate = viaPounds ? rates.cnyGbp : rates.cnyUsd;
   const secondRate = viaPounds ? rates.gbpUsd : 1;
@@ -116,6 +149,14 @@ form.addEventListener("submit", event => {
   resultQuote.hidden = false;
 });
 
+for (const pair of Object.values(ratePairs)) {
+  pair.input.addEventListener("input", () => {
+    pair.entered = { text: pair.input.value, value: pair.input.valueAsNumber, reversed: pair.reversed };
+  });
+}
+for (const button of form.querySelectorAll("[data-rate-pair]")) {
+  button.addEventListener("click", () => switchDirection(button.dataset.ratePair));
+}
 form.addEventListener("input", resetResult);
 manual.addEventListener("change", () => {
   if (!manual.checked && (!quote || Date.now() - lastRequest >= refreshInterval)) refreshQuote();

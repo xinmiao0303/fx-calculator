@@ -11,9 +11,10 @@ header p { margin-top: var(--space-sm); color: var(--color-ink-2); }
 .rates > p { margin-top: var(--space-xs); }
 .quotes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-sm); margin: var(--space-sm) 0; }
 .quotes dt { font-size: var(--text-sm); color: var(--color-muted); }
-.quotes dd { margin: var(--space-2xs) 0 0; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.quotes dd { display: grid; justify-items: start; gap: var(--space-2xs); margin: var(--space-2xs) 0 0; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .rate-fields { display: flex; flex-wrap: wrap; gap: var(--space-sm); border: 0; padding: 0; margin: var(--space-sm) 0 0; min-width: 0; }
-.rate-fields > .field { flex: 1 1 13rem; }
+.rate-fields > .field { flex: 1 1 13rem; align-content: start; }
+.rate-field-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-xs); }
 .rate-fields a { justify-self: start; }
 .muted { font-size: var(--text-sm); color: var(--color-muted); }
 .conversion { margin-block: var(--space-lg); border: 1px solid var(--color-rule); border-radius: var(--radius-card); background: var(--light); }
@@ -29,7 +30,9 @@ input[type="radio"], input[type="checkbox"] { margin: 0; accent-color: var(--col
 input[type="number"], button { min-height: 44px; border: 1px solid var(--color-muted); border-radius: var(--radius-input); padding: var(--space-xs) var(--space-sm); }
 input[type="number"] { width: 100%; min-width: 0; background: var(--light); color: var(--color-ink); font-variant-numeric: tabular-nums; }
 input::placeholder { color: var(--color-muted); opacity: 1; }
-button { flex: none; min-width: 6rem; background: var(--color-accent-deep); border-color: var(--color-accent-deep); color: var(--color-accent-ink); font-weight: 700; cursor: pointer; }
+button { flex: none; font-weight: 700; cursor: pointer; }
+#calculate { min-width: 6rem; background: var(--color-accent-deep); border-color: var(--color-accent-deep); color: var(--color-accent-ink); }
+.rate-toggle { padding-inline: var(--space-xs); background: var(--light); border-color: var(--color-rule); color: var(--color-accent-deep); font-size: var(--text-xs); }
 button:active:not(:disabled) { transform: translateY(1px); }
 button:disabled { opacity: 0.55; cursor: not-allowed; }
 .result { padding: var(--space-lg); border-top: 1px solid var(--color-rule); border-radius: 0 0 var(--radius-card) var(--radius-card); background: var(--color-paper-3); }
@@ -42,7 +45,8 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
 .disclaimer p { max-width: none; margin-top: var(--space-2xs); font-size: var(--text-sm); color: var(--color-muted); }
 
 @media (hover: hover) {
-  button:hover:not(:disabled) { background: var(--color-accent); }
+  #calculate:hover:not(:disabled) { background: var(--color-accent); }
+  .rate-toggle:hover { background: var(--color-paper-3); }
 }
 @media (max-width: 34rem) {
   .calculator { padding-block: var(--space-xl); }
@@ -50,5 +54,5 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
   form, .result { padding: var(--space-md); }
   .quotes { gap: var(--space-xs); }
   .quotes dt { font-size: var(--text-xs); }
-  button { min-width: 4rem; }
+  #calculate { min-width: 4rem; }
 }
