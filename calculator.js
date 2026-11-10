@@ -9,6 +9,8 @@ const form = document.getElementById("converter");
 const amount = document.getElementById("amount");
 const calculate = document.getElementById("calculate");
 const rateStatus = document.getElementById("rate-status");
+const poundsResult = document.getElementById("pounds-result");
+const pounds = document.getElementById("pounds");
 const result = document.getElementById("result");
 const resultQuote = document.getElementById("result-quote");
 let quote;
@@ -24,21 +26,21 @@ async function refreshQuote() {
     if (!response.ok) throw new Error("Quote request failed");
     const { data } = await response.json();
     const usdCny = Number(data?.rates?.CNY);
-    const usdEur = Number(data?.rates?.EUR);
+    const usdGbp = Number(data?.rates?.GBP);
     if (data?.currency !== "USD" || !Number.isFinite(usdCny) || usdCny <= 0 ||
-        !Number.isFinite(usdEur) || usdEur <= 0) {
+        !Number.isFinite(usdGbp) || usdGbp <= 0) {
       throw new Error("Invalid quote");
     }
 
     const rates = {
-      "cny-eur": usdEur / usdCny,
-      "eur-usd": 1 / usdEur,
+      "cny-gbp": usdGbp / usdCny,
+      "gbp-usd": 1 / usdGbp,
       "cny-usd": 1 / usdCny,
     };
     if (!Object.values(rates).every(rate => Number.isFinite(rate) && rate > 0)) {
       throw new Error("Invalid cross rate");
     }
-    quote = { usdPerCny: rates["cny-usd"], fetchedAt: Date.now() };
+    quote = { gbpPerCny: rates["cny-gbp"], usdPerCny: rates["cny-usd"], fetchedAt: Date.now() };
     for (const [id, rate] of Object.entries(rates)) {
       document.getElementById(id).textContent = rateFormat.format(rate);
     }
@@ -63,22 +65,32 @@ form.addEventListener("submit", event => {
     return;
   }
 
-  const usd = amount.valueAsNumber * quote.usdPerCny;
-  if (!Number.isFinite(usd)) {
+  const cny = amount.valueAsNumber;
+  const viaPounds = form.elements.route.value === "via-gbp";
+  const gbp = cny * quote.gbpPerCny;
+  // The two GBP legs cancel to the direct rate when derived from the same snapshot.
+  const usd = cny * quote.usdPerCny;
+  if (!Number.isFinite(usd) || (viaPounds && !Number.isFinite(gbp))) {
+    pounds.value = "待计算";
     result.value = "金额超出范围";
     resultQuote.hidden = true;
     return;
   }
+  if (viaPounds) pounds.value = moneyFormat.format(gbp);
   result.value = moneyFormat.format(usd);
   resultQuote.textContent = `按 ${timeFormat.format(quote.fetchedAt)} 取得的报价换算`;
   resultQuote.hidden = false;
 });
 
-amount.addEventListener("input", () => {
+function resetResult() {
+  poundsResult.hidden = form.elements.route.value !== "via-gbp";
+  pounds.value = "待计算";
   result.value = "待计算";
   resultQuote.hidden = true;
-});
+}
 
+form.addEventListener("input", resetResult);
+resetResult();
 function refreshIfVisible() {
   if (!document.hidden && Date.now() - lastRequest >= refreshInterval) refreshQuote();
 }
