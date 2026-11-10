@@ -3,6 +3,8 @@
 @import url("./tokens.css");
 @import url("./base.css");
 
+:root { --color-rate-warning: oklch(40% 0.115 52); }
+
 .calculator { max-width: 54rem; padding-block: var(--space-2xl) var(--space-xl); }
 header { margin-bottom: var(--space-lg); }
 header h1 { max-width: none; font-size: var(--text-3xl); line-height: 1.2; }
@@ -17,6 +19,7 @@ header p { margin-top: var(--space-sm); color: var(--color-ink-2); }
 .rate-field-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-xs); }
 .rate-fields a { justify-self: start; }
 .muted { font-size: var(--text-sm); color: var(--color-muted); }
+.rate-warning { font-size: var(--text-sm); color: var(--color-rate-warning); }
 .conversion { margin-block: var(--space-lg); border: 1px solid var(--color-rule); border-radius: var(--radius-card); background: var(--light); }
 form { display: grid; gap: var(--space-sm); padding: var(--space-lg); }
 .routes { border: 0; padding: 0; margin: 0; min-width: 0; }

@@ -2,6 +2,7 @@
 
 const rateUrl = "https://api.coinbase.com/v2/exchange-rates?currency=USD";
 const refreshInterval = 60_000;
+const rateWarningRatio = 1.10;
 const rateFormat = new Intl.NumberFormat("zh-CN", { minimumFractionDigits: 6, maximumFractionDigits: 6 });
 const moneyFormat = new Intl.NumberFormat("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const timeFormat = new Intl.DateTimeFormat("zh-CN", { timeStyle: "medium", hour12: false });
@@ -14,6 +15,7 @@ const viaRates = document.getElementById("via-rates");
 const directRates = document.getElementById("direct-rates");
 const calculate = document.getElementById("calculate");
 const rateStatus = document.getElementById("rate-status");
+const manualRateStatus = document.getElementById("manual-rate-status");
 const poundsResult = document.getElementById("pounds-result");
 const pounds = document.getElementById("pounds");
 const result = document.getElementById("result");
@@ -32,6 +34,7 @@ function createRatePair(id, from, to, reversed) {
     from, to, reversed,
     input: document.getElementById(`manual-${id}`),
     inputLabel: document.getElementById(`manual-${id}-label`),
+    warning: document.getElementById(`manual-${id}-warning`),
     quoteValue: document.getElementById(id),
     quoteLabel: document.getElementById(`${id}-label`),
     entered: undefined,
@@ -55,6 +58,7 @@ function switchDirection(key) {
   const { text, value, reversed } = pair.entered;
   // Keep the original entry so flipping twice restores it without rounding.
   pair.input.value = reversed === pair.reversed || !(value > 0) ? text : String(1 / value);
+  updateRateWarning(key, pair);
 }
 
 function manualRate(key) {
@@ -63,15 +67,35 @@ function manualRate(key) {
   return entered.reversed && entered.value > 0 ? 1 / entered.value : entered.value;
 }
 
+function updateRateWarning(key, pair) {
+  const entered = manualRate(key);
+  const reference = quote?.[key];
+  // Compare in either direction using the same ratio between the larger and smaller rate.
+  const ratio = Math.max(entered / reference, reference / entered);
+  const warn = quote && Number.isFinite(entered) && entered > 0 &&
+    ratio > rateWarningRatio && Date.now() - quote.fetchedAt <= 2 * refreshInterval;
+  pair.warning.hidden = !warn;
+  if (!warn) {
+    pair.warning.textContent = "";
+    return;
+  }
+  const visibleReference = pair.reversed ? 1 / reference : reference;
+  const message = `相差较大（实时参考价 ${rateFormat.format(visibleReference)}）。请核对方向或单位，仍可计算。`;
+  if (pair.warning.textContent !== message) pair.warning.textContent = message;
+}
+
 function updateCalculateButton() {
   calculate.disabled = !manual.checked && !quote;
 }
 
 async function refreshQuote() {
-  if (manual.checked || refreshing) return;
+  if (refreshing) return;
   refreshing = true;
   lastRequest = Date.now();
-  if (!quote) rateStatus.textContent = "正在获取汇率…";
+  if (!quote) {
+    rateStatus.textContent = "正在获取汇率…";
+    manualRateStatus.textContent = "正在获取 Coinbase 参考汇率用于核对…";
+  }
   try {
     const response = await fetch(rateUrl, { cache: "no-store", signal: AbortSignal.timeout(10_000) });
     if (!response.ok) throw new Error("Quote request failed");
@@ -84,12 +108,17 @@ async function refreshQuote() {
     }
     quote = { ...rates, fetchedAt: Date.now() };
     rateStatus.textContent = `取数时间 ${timeFormat.format(quote.fetchedAt)}`;
+    manualRateStatus.textContent = `核对来源 Coinbase，取数时间 ${timeFormat.format(quote.fetchedAt)}。`;
   } catch {
     quote = undefined;
     rateStatus.textContent = "汇率获取失败，页面将自动重试。也可以手动输入汇率。";
+    manualRateStatus.textContent = "暂时无法取得参考汇率，仍可按填写值计算。";
   } finally {
     refreshing = false;
-    for (const [key, pair] of Object.entries(ratePairs)) displayQuote(key, pair);
+    for (const [key, pair] of Object.entries(ratePairs)) {
+      displayQuote(key, pair);
+      updateRateWarning(key, pair);
+    }
     updateCalculateButton();
   }
 }
@@ -149,9 +178,10 @@ form.addEventListener("submit", event => {
   resultQuote.hidden = false;
 });
 
-for (const pair of Object.values(ratePairs)) {
+for (const [key, pair] of Object.entries(ratePairs)) {
   pair.input.addEventListener("input", () => {
     pair.entered = { text: pair.input.value, value: pair.input.valueAsNumber, reversed: pair.reversed };
+    updateRateWarning(key, pair);
   });
 }
 for (const button of form.querySelectorAll("[data-rate-pair]")) {
@@ -159,7 +189,7 @@ for (const button of form.querySelectorAll("[data-rate-pair]")) {
 }
 form.addEventListener("input", resetResult);
 manual.addEventListener("change", () => {
-  if (!manual.checked && (!quote || Date.now() - lastRequest >= refreshInterval)) refreshQuote();
+  if (!quote || Date.now() - lastRequest >= refreshInterval) refreshQuote();
 });
 
 function refreshIfVisible() {
